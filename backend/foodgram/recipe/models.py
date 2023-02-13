@@ -79,6 +79,7 @@ class Tag(models.Model):
     name = models.CharField(
         max_length=100,
         verbose_name='название тега',
+
     )
     colour = models.CharField(
         max_length=30,
@@ -114,3 +115,60 @@ class IngredientQuantity(models.Model):
     class Meta:
         verbose_name = 'Ингредиент в рецепте'
         verbose_name_plural = 'Ингредиенты в рецептах'
+
+
+
+class Basket(models.Model):
+    user = models.ForeignKey(
+        on_delete=models.CASCADE,
+        related_name='shopping_cart',
+        to=User,
+        verbose_name='пользователь',
+    )
+    recipe = models.ForeignKey(
+        on_delete=models.CASCADE,
+        related_name='shopping_cart',
+        to='Recipe',
+        verbose_name='рецепт',
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_basket'
+            )
+        ]
+        verbose_name = 'корзина покупок'
+        verbose_name_plural = 'корзина покупок'
+    
+    def __str__(self):
+        return f'{self.user} добавил {self.recipe} в козину покупок'
+    
+    
+class Favorite(models.Model):
+    user = models.ForeignKey(
+        on_delete=models.CASCADE,
+        related_name='favorite',
+        to=User,
+        verbose_name='пользователь',
+    )
+    recipe = models.ForeignKey(
+        on_delete=models.CASCADE,
+        related_name='favorite',
+        to='Recipe',
+        verbose_name='рецепт',
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_favorite'
+            )
+        ]
+        verbose_name = 'избранный рецепт'
+        verbose_name_plural = 'избранные рецепты'
+    
+    def __str__(self):
+        return f'{self.user} добавил {self.recipe} в список избранных'

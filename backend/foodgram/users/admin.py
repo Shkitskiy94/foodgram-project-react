@@ -13,7 +13,7 @@ class UserAdmin(UserAdmin):
     )
     list_filter = (
         'email',
-        'username'
+        'username',
     )
 
 
@@ -21,5 +21,8 @@ class UserAdmin(UserAdmin):
 class SubcribeAdmin(admin.ModelAdmin):
     list_display = (
         'user',
+        'author',
+    )
+    list_filter = (
         'author',
     )
