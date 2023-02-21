@@ -8,7 +8,7 @@ from .models import (Ingredient, Recipe, Tag, IngredientQuantity,
 class IngredientAdmin(admin.ModelAdmin):
     list_display = (
         'name',
-        'unit_of_measurement',
+        'measurement_unit',
     )
     list_filter = (
         'name',

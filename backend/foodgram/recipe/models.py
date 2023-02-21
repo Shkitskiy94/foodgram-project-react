@@ -13,7 +13,7 @@ class Ingredient(models.Model):
         max_length=100,
         verbose_name='название ингедиента'
     )
-    unit_of_measurement = models.CharField(
+    measurement_unit = models.CharField(
         max_length=20,
         verbose_name='единица измерений',
     )
@@ -24,7 +24,7 @@ class Ingredient(models.Model):
         verbose_name_plural = 'Ингредиенты'
 
     def __str__(self):
-        return f'{self.name}, {self.unit_of_measurement}'
+        return f'{self.name}, {self.measurement_unit}'
 
 
 
@@ -56,8 +56,10 @@ class Recipe(models.Model):
     cooking_time = models.PositiveSmallIntegerField(
         verbose_name='время приготовления',
         validators=[
-            MinValueValidator(settings.MIN_COOKING_VALUE),
-            MaxValueValidator(settings.MAX_COOKING_VALUE),
+            MinValueValidator(settings.MIN_COOKING_VALUE,
+                              message='Время должно быть не меньше минуты'),
+            MaxValueValidator(settings.MAX_COOKING_VALUE,
+                              'Превышено время приготовления'),
         ]
     )
     pub_date = models.DateTimeField(
@@ -87,6 +89,7 @@ class Tag(models.Model):
     )
     slug = models.SlugField(
         unique=True,
+        verbose_name='Адрес(url)'
         )
     
     class Meta:
