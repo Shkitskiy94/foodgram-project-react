@@ -40,7 +40,7 @@ class SubscribeViewSet(APIView):
         user_id = self.kwargs.get('user_id')
         if user_id == request.user.id:
             return Response(
-                {'error': 'нельзя подписаться на себя'},
+                {'error': 'Нельзя подписаться самому на себя'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         if Subscriber.objects.filter(
@@ -48,7 +48,7 @@ class SubscribeViewSet(APIView):
                 author_id=user_id
         ).exists():
             return Response(
-                {'error': 'вы уже подписаны на пользователя'},
+                {'error': 'Вы уже подписаны на данного пользователя'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         author = get_object_or_404(User, id=user_id)
@@ -72,6 +72,6 @@ class SubscribeViewSet(APIView):
             subscription.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(
-            {'error': 'вы не подписаны на пользователя'},
+            {'error': 'Вы не подписаны на данного пользователя'},
             status=status.HTTP_400_BAD_REQUEST
         )
