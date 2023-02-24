@@ -17,12 +17,14 @@ class IngredientQuantitySerializer(serializers.ModelSerializer):
     """Serializer для количества ингредиентов"""
     id = serializers.ReadOnlyField(source='ingredient.id')
     name = serializers.ReadOnlyField(source='ingredient.name')
-    measurement_unit = serializers.ReadOnlyField(source='ingredient.measurement_unit')
+    measurement_unit = serializers.ReadOnlyField(
+        source='ingredient.measurement_unit'
+    )
     quantity = serializers.IntegerField()
 
     class Meta:
         model = IngredientQuantity
-        fields = ('id','recipe', 'ingredient', 'quantity')
+        fields = ('id', 'name', 'measurement_unit', 'quantity')
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -43,8 +45,7 @@ class RecipeListSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Recipe
-        fields = ('id', 'author', 'ingredients', 'name', 'image', 'description',
-                  'tags', 'cooking_time', 'pub_date')
+        fields = '__all__'
         
     
     def get_ingredients(self, obj):
@@ -89,38 +90,52 @@ class RecipeSerializer(serializers.ModelSerializer):
             'name', 'text', 'cooking_time')
     
     def validate(self, data):
-        tags = self.initial_data['tags']
-        if not tags:
-            raise serializers.ValidationError(
-                'Нужно добавить хотя бы 1 тэг'
-            )
-        ingredients = self.initial_data['ingredients']
-        if not ingredients:
-            raise serializers.ValidationError(
-                'Нужно добавить хотя бы 1 ингредиент'
-            )
-
-        for value in (tags, ingredients):
-            if not isinstance(value, list):
-                raise serializers.ValidationError(
-                    f'{value} должен быть в формате list'
-                )
-
+        ingredients = data['ingredients']
+        ingredients_list = []
         for ingredient in ingredients:
-            if not ingredient['amount'].isdecimal():
-                raise serializers.ValidationError(
-                    'Количество ингредиента должно быть числом'
-                )
-            if not (1 <= int(ingredient['amount']) <= 10000):
-                raise serializers.ValidationError(
-                    'Количество ингредиента может быть от 1 до 10000'
-                )
-        if not (1 <= int(self.initial_data['cooking_time']) <= 1000):
-            raise serializers.ValidationError(
-                'Время приготовление может быть от 1 до 1000'
-            )
-        data['tags'] = tags
-        data['ingredients'] = ingredients
+            ingredient_id = ingredient['id']
+            if ingredient_id in ingredients_list:
+                raise serializers.ValidationError({
+                    'ingredients': 'Все ингредиенты должны быть уникальными'
+                })
+            ingredients_list.append(ingredient_id)
+            quantity = ingredient['quantity']
+            if int(quantity) <= 0:
+                raise serializers.ValidationError({
+                    'quantity': 'Количество ингредиентов\
+                        не может быть меньше или равно 0 '
+                })
+            if int(quantity) >= 1111111111111111111:
+                raise serializers.ValidationError({
+                    'quantity':
+                    'кКоличество ингредиентов не может быть больше\
+                        1111111111111111111'
+                })
+
+        tags = data['tags']
+        if not tags:
+            raise serializers.ValidationError({
+                'tags': 'Необходимо выбрать хотя бы 1 тэг'
+            })
+        tags_list = []
+        for tag in tags:
+            if tag in tags_list:
+                raise serializers.ValidationError({
+                    'tags': 'Тэги должны быть уникальными'
+                })
+            tags_list.append(tag)
+
+        cooking_time = data['cooking_time']
+        if int(cooking_time) <= 0:
+            raise serializers.ValidationError({
+                'cooking_time': 'Время приготовления должно быть\
+                    быть больше 0 минут '
+            })
+        if int(cooking_time) >= 11111111111:
+            raise serializers.ValidationError({
+                'cooking_time': 'Время приготовления должно быть\
+                    быть меньше 11111111111 минут'
+            })
         return data
     
     @staticmethod
