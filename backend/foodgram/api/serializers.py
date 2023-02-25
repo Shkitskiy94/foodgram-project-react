@@ -99,19 +99,6 @@ class RecipeSerializer(serializers.ModelSerializer):
                     'ingredients': 'Все ингредиенты должны быть уникальными'
                 })
             ingredients_list.append(ingredient_id)
-            quantity = ingredient['quantity']
-            if int(quantity) <= 0:
-                raise serializers.ValidationError({
-                    'quantity': 'Количество ингредиентов\
-                        не может быть меньше или равно 0 '
-                })
-            if int(quantity) >= 1111111111111111111:
-                raise serializers.ValidationError({
-                    'quantity':
-                    'кКоличество ингредиентов не может быть больше\
-                        1111111111111111111'
-                })
-
         tags = data['tags']
         if not tags:
             raise serializers.ValidationError({
@@ -124,18 +111,6 @@ class RecipeSerializer(serializers.ModelSerializer):
                     'tags': 'Тэги должны быть уникальными'
                 })
             tags_list.append(tag)
-
-        cooking_time = data['cooking_time']
-        if int(cooking_time) <= 0:
-            raise serializers.ValidationError({
-                'cooking_time': 'Время приготовления должно быть\
-                    быть больше 0 минут '
-            })
-        if int(cooking_time) >= 11111111111:
-            raise serializers.ValidationError({
-                'cooking_time': 'Время приготовления должно быть\
-                    быть меньше 11111111111 минут'
-            })
         return data
     
     @staticmethod
