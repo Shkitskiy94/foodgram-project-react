@@ -24,6 +24,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         max_length=150,
     )
     is_staff = models.BooleanField(default=False)
+    # насчет @property не понял
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
 
@@ -34,12 +35,13 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def has_perm(self, perm, obj=None):
         return self.is_superuser
-
+    
     def has_module_perms(self, app_label):
         return self.is_superuser
 
     def get_full_name(self):
         return f"{self.first_name} {self.last_name}"
+
 
     def get_short_name(self):
         return self.username
@@ -89,13 +91,6 @@ class CustomUserManager(BaseUserManager):
         other_fields.setdefault('is_staff', True)
         other_fields.setdefault('is_superuser', True)
         other_fields.setdefault('is_active', True)
-
-        if not other_fields.get("is_staff"):
-            raise ValueError("в доступе отказано")
-
-        if not other_fields.get("is_superuser"):
-            raise ValueError("в доступе отказано")
-
         return self.create_user(
             email, username, first_name, last_name,
             password=password, **other_fields

@@ -53,14 +53,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return RecipeListSerializer
         return RecipeSerializer
     
-    def post_method_actions(self, request, pk, serializers):
+    def _post_method_actions(self, request, pk, serializers):
         data = {'user': request.user.id, 'recipe': pk}
         serializer = serializers(data=data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
-    def delete_method_actions(self, request, pk, model):
+    def _delete_method_actions(self, request, pk, model):
         user = request.user
         recipe = get_object_or_404(Recipe, id=pk)
         model_object = get_object_or_404(model, user=user, recipe=recipe)
@@ -70,26 +70,26 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["POST"],
             permission_classes=[IsAuthenticated])
     def favorite(self, request, pk):
-        return self.post_method_actions(
+        return self._post_method_actions(
             request=request, pk=pk, serializers=FavoriteSerializer
         )
 
     @favorite.mapping.delete
     def delete_favorite(self, request, pk):
-        return self.delete_method_actions(
+        return self._delete_method_actions(
             request=request, pk=pk, model=Favorite
         )
     
     @action(detail=True, methods=["POST"],
             permission_classes=[IsAuthenticated])
     def shopping_cart(self, request, pk):
-        return self.post_method_actions(
+        return self._post_method_actions(
             request=request, pk=pk, serializers=BasketSerializer
         )
 
     @shopping_cart.mapping.delete
     def delete_shoping_cart(self, request, pk):
-        return self.delete_method_actions(
+        return self._delete_method_actions(
             request=request, pk=pk, model=Basket
         )
     

@@ -30,6 +30,7 @@ class CustomUserSerializer(UserSerializer):
         
     def get_is_subscribed(self, obj):
         user = self.context.get('request').user
+        # тоже не пойму как перейти через obj
         if user.is_anonymous:
             return False
         return Subscriber.objects.filter(user=user, author=obj.id).exists()
@@ -49,11 +50,11 @@ class SubscriberSerializer(CustomUserSerializer):
 
     @staticmethod
     def get_recipes_count(obj):
-        return obj.recipes.count()
+        return obj.author.count()
     
     def get_recipes(self, obj):
         request = self.context.get('request')
-        recipes = obj.recipes.all()
+        recipes = obj.author.all()
         recipes_limit = request.query_params.get('recipes_limit')
         if recipes_limit:
             recipes = recipes[:int(recipes_limit)]

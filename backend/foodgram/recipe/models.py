@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import MinValueValidator, RegexValidator
 
 
 User = get_user_model()
@@ -22,6 +22,12 @@ class Ingredient(models.Model):
         ordering = ['name']
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
+        constraints = [
+            models.UniqueConstraint(
+                fields=('name', 'measurement_unit'),
+                name='unique_ingredient'
+            )
+        ]
 
     def __str__(self):
         return f'{self.name}, {self.measurement_unit}'
@@ -57,9 +63,7 @@ class Recipe(models.Model):
         verbose_name='время приготовления',
         validators=[
             MinValueValidator(settings.MIN_COOKING_VALUE,
-                              message='Время должно быть не меньше минуты'),
-            MaxValueValidator(settings.MAX_COOKING_VALUE,
-                              'Превышено время приготовления'),
+                              message='Время должно быть не меньше минуты')
         ]
     )
     pub_date = models.DateTimeField(
@@ -81,11 +85,23 @@ class Tag(models.Model):
     name = models.CharField(
         max_length=100,
         verbose_name='название тега',
+        validators= [
+            RegexValidator(
+                regex='^[\w.@+-]+\Z',
+                message='Только буквы, цифры и @/./+/-/_'
+            )
+        ]
 
     )
     colour = models.CharField(
         max_length=30,
         verbose_name='цвет',
+        validators= [
+            RegexValidator(
+                regex='^#(?:[0-9a-fA-F]{3}){1,2}$',
+                message='Не допустимый символ HEX(цвета)'
+            )
+        ]
     )
     slug = models.SlugField(
         unique=True,
@@ -118,7 +134,12 @@ class IngredientQuantity(models.Model):
     class Meta:
         verbose_name = 'Ингредиент в рецепте'
         verbose_name_plural = 'Ингредиенты в рецептах'
-
+        constraints = [
+            models.UniqueConstraint(
+                fields=('recipe', 'ingredient'),
+                name='unique_ingredient_quantity'
+            )
+        ]
 
 
 class Basket(models.Model):
@@ -138,7 +159,7 @@ class Basket(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['user', 'recipe'],
+                fields=('user', 'recipe'),
                 name='unique_basket'
             )
         ]
@@ -166,7 +187,7 @@ class Favorite(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['user', 'recipe'],
+                fields=('user', 'recipe'),
                 name='unique_favorite'
             )
         ]

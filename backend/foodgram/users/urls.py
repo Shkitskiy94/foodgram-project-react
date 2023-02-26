@@ -7,17 +7,21 @@ from .views import (SubscribeListView, SubscribeViewSet, CustomUserViewSet)
 router = DefaultRouter()
 router.register('users', CustomUserViewSet, basename='users')
 
-urlpatterns = [
+userpatterns = [
     path(
-        'users/subscriptions/',
+        'subscriptions/',
         SubscribeListView.as_view(),
         name='subscriptions'
     ),
     path(
-        'users/<int:user_id>/subscribe/',
+        '<int:user_id>/subscribe/',
         SubscribeViewSet.as_view(),
         name='subscribe'
     ),
+]
+
+urlpatterns = [
+    path('users/', include(userpatterns)),
     path('', include(router.urls)),
     path('', include('djoser.urls')),
     path('auth/', include('djoser.urls.authtoken')),

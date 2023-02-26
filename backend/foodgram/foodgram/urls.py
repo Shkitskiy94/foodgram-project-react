@@ -18,13 +18,15 @@ schema_view = get_schema_view(
         contact=openapi.Contact(email="contact@snippets.local"),
         license=openapi.License(name="BSD License"),
     ),
-    # url=f'{settings.APP_URL}/api/v3/',
     patterns=[path('api/', include('foodgram.urls')), ],
     public=True,
     permission_classes=(permissions.AllowAny,),
 )
 
-
+apipatterns = [
+    path('', include('users.urls')),
+    path('', include('api.urls')),
+]
 
 urlpatterns = [
     path(
@@ -39,8 +41,7 @@ urlpatterns = [
         schema_view.without_ui(cache_timeout=0),
         name='schema-json'),
     path('admin/', admin.site.urls),
-    path('api/', include('users.urls')),
-    path('api/', include('api.urls')),
+    path('api/', include(apipatterns)),
 ]
 
 urlpatterns += static(
