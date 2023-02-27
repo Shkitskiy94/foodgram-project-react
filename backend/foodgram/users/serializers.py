@@ -30,7 +30,6 @@ class CustomUserSerializer(UserSerializer):
         
     def get_is_subscribed(self, obj):
         user = self.context.get('request').user
-        # тоже не пойму как перейти через obj
         if user.is_anonymous:
             return False
         return Subscriber.objects.filter(user=user, author=obj.id).exists()
@@ -78,12 +77,14 @@ class CustomUserCreateSerializer(UserCreateSerializer):
         }
     
     def create(self, validated_data):
+        if not validated_data['email']:
+            raise ValueError("укажите email")
         user = User.objects.create(
-            email=validated_data['email'],
-            username=validated_data['username'],
-            first_name=validated_data['first_name'],
-            last_name=validated_data['last_name']   
+            email=validated_data.get('email'),
+            username=validated_data.get('username'),
+            first_name=validated_data.get('first_name'),
+            last_name=validated_data.get('last_name')
         )
-        user.set_password(validated_data['password'])
+        user.set_password(validated_data.get('password'))
         user.save()
         return user

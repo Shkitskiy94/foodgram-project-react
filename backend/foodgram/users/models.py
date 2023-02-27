@@ -24,7 +24,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         max_length=150,
     )
     is_staff = models.BooleanField(default=False)
-    # насчет @property не понял
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
 
@@ -98,10 +97,6 @@ class CustomUserManager(BaseUserManager):
 
     def create_user(self, first_name, last_name,
                     email, password, **other_fields):
-
-        if not email:
-            raise ValueError("укажите email")
-
         email = self.normalize_email(email)
         user = self.model(
             email=email, first_name=first_name,

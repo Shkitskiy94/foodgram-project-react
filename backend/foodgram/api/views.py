@@ -103,11 +103,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def download_basket(self, request):
         ingredients = IngredientQuantity.objects.filter(
-            recipe__cart__user=request.user
+            recipe__shopping_cart__user=request.user
         ).values(
             'ingredient__name',
             'ingredient__measurement_unit'
-        ).order_by('ingredient__name').annotate(total=Sum('quantity'))
+        ).order_by('ingredient__name').annotate(total=Sum('amount'))
         result = 'Cписок покупок:\n\nНазвание продукта - Кол-во/Ед.изм.\n'
         for ingredient in ingredients:
             result += ''.join([

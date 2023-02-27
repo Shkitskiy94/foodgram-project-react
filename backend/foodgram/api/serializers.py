@@ -21,11 +21,11 @@ class IngredientQuantitySerializer(serializers.ModelSerializer):
     measurement_unit = serializers.ReadOnlyField(
         source='ingredient.measurement_unit'
     )
-    quantity = serializers.IntegerField()
+    amount = serializers.IntegerField()
 
     class Meta:
         model = IngredientQuantity
-        fields = ('id', 'name', 'measurement_unit', 'quantity')
+        fields = ('id', 'name', 'measurement_unit', 'amount')
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -61,17 +61,19 @@ class RecipeListSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Recipe
-        fields = '__all__'
+        fields = ('id', 'tags', 'author', 'ingredients', 'is_favorited',
+                  'is_in_shopping_cart', 'name', 'image', 'text',
+                  'cooking_time', 'pub_date')
 
 
 class AddIngredientSerializer(serializers.ModelSerializer):
     """Вспомогательный сериализатор рецептов"""
     id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
-    quantity = serializers.IntegerField()
+    amount = serializers.IntegerField()
 
     class Meta:
         model = IngredientQuantity
-        fields = ('id', 'quantity')
+        fields = ('id', 'amount')
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -83,14 +85,14 @@ class RecipeSerializer(serializers.ModelSerializer):
     image = Base64ImageField()
     
     def validate(self, data):
-        ingredients = data['ingredients']
+        ingredients = data.get('ingredients')
         if not ingredients:
             raise serializers.ValidationError({
                 'ingredients': 'Необходимо выбрать хотя бы 1 ингредиент'
             })
         ingredients_list = []
         for ingredient in ingredients:
-            ingredient_id = ingredient['id']
+            ingredient_id = ingredient.get('id')
             if not ingredient_id:
                 raise serializers.ValidationError({
                     'id': 'Необходимо выбрать хотя бы 1 ингредиент'
@@ -100,7 +102,7 @@ class RecipeSerializer(serializers.ModelSerializer):
                     'ingredients': 'Все ингредиенты должны быть уникальными'
                 })
             ingredients_list.append(ingredient_id)
-        tags = data['tags']
+        tags = data.get('tags')
         if not tags:
             raise serializers.ValidationError({
                 'tags': 'Необходимо выбрать хотя бы 1 тэг'
@@ -119,7 +121,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         for ingredient in ingredients:
             IngredientQuantity.objects.create(
                 recipe=recipe, ingredient=ingredient['id'],
-                quantity=ingredient['quantity']
+                amount=ingredient['amount']
             )
 
     @staticmethod

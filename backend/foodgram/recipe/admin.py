@@ -48,7 +48,7 @@ class IngredientQuantityAdmin(admin.ModelAdmin):
     list_display = (
         'recipe',
         'ingredient',
-        'quantity',
+        'amount',
     )
     list_filter = (
         'recipe',
