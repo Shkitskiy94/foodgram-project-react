@@ -1,18 +1,92 @@
-name: Docker Image CI
+name: foodgram_workflow
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ master ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ master ]
 
 jobs:
-
-  build:
-
+  tests:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v3
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.11
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip 
+        pip install -r backend/requirements.txt
+  build_and_push_to_docker_hub:
+    name: Push Docker image to Docker Hub
+    runs-on: ubuntu-latest
+    needs: tests
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1 
+      - name: Login to Docker 
+        uses: docker/login-action@v1 
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }} 
+          password: ${{ secrets.DOCKER_PASSWORD }} 
+      - name: Push to Docker Hub
+        uses: docker/build-push-action@v2
+        with:
+          context: backend
+          file: backend/Dockerfile
+          push: true
+          tags: shkitskiy/backend_foodgram:latest
+      - name: Push frontend
+        uses: docker/build-push-action@v2 
+        with:
+          context: frontend/
+          push: true
+          tags: shkitskiy/frontend:latest
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build_and_push_to_docker_hub
+    if: github.ref == 'refs/heads/master'
+    steps:
+    - name: executing remote ssh commands to deploy
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USER }}
+        key: ${{ secrets.SSH_KEY }}
+        script: |
+          cd foodgram-project-react/infra
+          sudo docker pull shkitskiy/backend_foodgram:latest
+          sudo docker pull shkitskiy/frontend:latest
+          sudo docker-compose stop
+          sudo docker-compose rm backend
+          rm .env
+          touch .env
+          echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
+          echo DB_NAME=${{ secrets.DB_NAME }} >> .env
+          echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
+          echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
+          echo DB_HOST=${{ secrets.DB_HOST }} >> .env
+          echo DB_PORT=${{ secrets.DB_PORT }} >> .env
+          sudo docker-compose up -d
+          sudo docker-compose exec -T backend python manage.py makemigrations
+          sudo docker-compose exec -T backend python manage.py migrate
+          sudo docker-compose exec -T backend python manage.py zen
+          sudo docker-compose exec -T backend python manage.py collectstatic --no-input
+  
+  send_message:
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: github.ref == 'refs/heads/master'
+    steps:
+    - name: send message
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        message: ${{ github.workflow }} успешно выполнен!
