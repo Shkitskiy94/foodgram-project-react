@@ -54,7 +54,7 @@ jobs:
     if: github.ref == 'refs/heads/master'
     steps:
     - name: executing remote ssh commands to deploy
-      uses: appleboy/ssh-action@master
+      uses: actions/checkout@v2
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USER }}
