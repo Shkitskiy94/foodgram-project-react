@@ -10,8 +10,8 @@ services:
   backend:
     image: shkitskiy/backend_foodgram
     volumes:
-      - static_value:/app/static/
-      - media_value:/app/media/
+      - static_value:/app/backend_static/
+      - media_value:/app/backend_media/
     depends_on:
       - db
     env_file:
