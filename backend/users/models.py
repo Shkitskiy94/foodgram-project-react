@@ -23,43 +23,24 @@ class User(AbstractBaseUser, PermissionsMixin):
         'Фамилия',
         max_length=150,
     )
-    # is_staff = models.BooleanField(default=False)
-    # is_active = models.BooleanField(default=True)
-    # is_admin = models.BooleanField(default=False)
-
-    @property
-    def is_staff(self):
-        is_staff = models.BooleanField(default=False)
-        return is_staff
-    
-    @property
-    def is_active(self):
-        is_active = models.BooleanField(default=True)
-        return is_active
-    
-    @property
-    def is_admin(self):
-        is_admin = models.BooleanField(default=False)
-        return is_admin
+    is_staff = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    is_admin = models.BooleanField(default=False)
 
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
-    @property
     def has_perm(self, perm, obj=None):
         return self.is_superuser
     
-    @property
     def has_module_perms(self, app_label):
         return self.is_superuser
     
-    @property
     def get_full_name(self):
         return f"{self.first_name} {self.last_name}"
-
-    @property
+    
     def get_short_name(self):
         return self.username
 
