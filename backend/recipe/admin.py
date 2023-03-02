@@ -35,7 +35,7 @@ class RecipeAdmin(admin.ModelAdmin):
 class TagAdmin(admin.ModelAdmin):
     list_display = (
         'name',
-        'colour',
+        'color',
         'slug',
     )
     list_filter = (
