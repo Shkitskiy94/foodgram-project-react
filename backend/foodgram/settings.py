@@ -12,7 +12,13 @@ SECRET_KEY = 'django-insecure-%s+via$e=l9k@qhs(w3-69znu16z!t#t!++^t=$kh3i)9#_xfp
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "51.250.15.152",
+    "backend",
+    "*",
+]
 
 
 DJANGO_APPS = [
@@ -165,3 +171,4 @@ FILENAME = 'shopping_cart.txt'
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_URLS_REGEX = r'^/api/.*$'
+CORS_URLS_REGEX = r'^/admin/.*$'
