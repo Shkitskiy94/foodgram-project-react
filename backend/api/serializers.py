@@ -33,7 +33,7 @@ class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = ('id', 'name', 'colour', 'slug')
-        read_only_fields = ('id', 'name', 'colour', 'slug')
+        read_only_fields = ('id', 'name', 'color', 'slug')
 
 
 class RecipeListSerializer(serializers.ModelSerializer):

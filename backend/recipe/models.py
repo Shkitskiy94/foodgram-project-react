@@ -93,7 +93,7 @@ class Tag(models.Model):
         ]
 
     )
-    colour = models.CharField(
+    color = models.CharField(
         max_length=30,
         verbose_name='цвет',
         validators= [
