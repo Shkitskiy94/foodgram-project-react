@@ -1,5 +1,5 @@
 # Foodgram
-![yamdb_workflow](https://github.com/Shkitskiy94/foodgram-project-react/blob/master/.github/workflows/foodgram_workflow.yml/badge.svg)
+![yamdb_workflow](https://github.com/Shkitskiy94/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)
 
 ## Описание
 
