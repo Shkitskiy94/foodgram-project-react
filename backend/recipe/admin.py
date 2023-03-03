@@ -4,6 +4,12 @@ from django.contrib.admin import display
 from .models import (Ingredient, Recipe, Tag, IngredientQuantity,
                     Basket, Favorite)
 
+
+class IngredientAmountInline(admin.TabularInline):
+    model = IngredientQuantity
+    min_num = 1
+
+
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
     list_display = (
@@ -27,9 +33,14 @@ class RecipeAdmin(admin.ModelAdmin):
         'name',
         'tags',
     )
+
+    search_fields = ('name',)
+    inlines = [IngredientAmountInline]
+
     @display(description='Количество в избранных')
     def added_in_favorites(self, obj):
         return obj.favorite.count()
+
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
