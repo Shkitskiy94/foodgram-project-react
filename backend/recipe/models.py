@@ -33,7 +33,6 @@ class Ingredient(models.Model):
         return f'{self.name}, {self.measurement_unit}'
 
 
-
 class Recipe(models.Model):
     """Модель рецептов"""
     author = models.ForeignKey(
@@ -55,7 +54,7 @@ class Recipe(models.Model):
     )
     text = models.TextField(verbose_name='описание')
     tags = models.ManyToManyField(
-        related_name= 'tags',
+        related_name='tags',
         to='Tag',
         verbose_name='тэг',
     )
@@ -75,7 +74,13 @@ class Recipe(models.Model):
         ordering = ['-pub_date']
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
-    
+        constraints = [
+            models.UniqueConstraint(
+                fields=('name', 'text'),
+                name='unique_recipe'
+            )
+        ]
+
     def __str__(self):
         return self.name
 
@@ -85,7 +90,7 @@ class Tag(models.Model):
     name = models.CharField(
         max_length=100,
         verbose_name='название тега',
-        validators= [
+        validators=[
             RegexValidator(
                 regex='^[\w.@+-]+\Z',
                 message='Только буквы, цифры и @/./+/-/_'
@@ -96,7 +101,7 @@ class Tag(models.Model):
     color = models.CharField(
         max_length=30,
         verbose_name='цвет',
-        validators= [
+        validators=[
             RegexValidator(
                 regex='^#(?:[0-9a-fA-F]{3}){1,2}$',
                 message='Не допустимый символ HEX(цвета)'
@@ -107,11 +112,11 @@ class Tag(models.Model):
         unique=True,
         verbose_name='Адрес(url)'
         )
-    
+
     class Meta:
         verbose_name = 'Тэг'
         verbose_name_plural = 'Тэги'
-    
+
     def __str__(self):
         return self.name
 
@@ -165,11 +170,11 @@ class Basket(models.Model):
         ]
         verbose_name = 'корзина покупок'
         verbose_name_plural = 'корзина покупок'
-    
+
     def __str__(self):
         return f'{self.user} добавил {self.recipe} в козину покупок'
-    
-    
+
+
 class Favorite(models.Model):
     user = models.ForeignKey(
         on_delete=models.CASCADE,
@@ -193,6 +198,6 @@ class Favorite(models.Model):
         ]
         verbose_name = 'избранный рецепт'
         verbose_name_plural = 'избранные рецепты'
-    
+
     def __str__(self):
         return f'{self.user} добавил {self.recipe} в список избранных'

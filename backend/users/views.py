@@ -28,7 +28,7 @@ class SubscribeListView(ListAPIView):
 
     def get_queryset(self):
         return User.objects.filter(author_sub__user=self.request.user)
-    # return self.request.user.author_sub.all() не работает!!!
+
 
 class SubscribeViewSet(APIView):
     """Отображение конкретного подписчика"""

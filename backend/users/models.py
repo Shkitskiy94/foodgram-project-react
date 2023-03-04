@@ -34,13 +34,13 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def has_perm(self, perm, obj=None):
         return self.is_superuser
-    
+
     def has_module_perms(self, app_label):
         return self.is_superuser
-    
+
     def get_full_name(self):
         return f"{self.first_name} {self.last_name}"
-    
+
     def get_short_name(self):
         return self.username
 
@@ -60,7 +60,7 @@ class Subscriber(models.Model):
         verbose_name='Подписчик',
         on_delete=models.CASCADE,
     )
-    
+
     author = models.ForeignKey(
         User,
         related_name='author_sub',
